@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>!!! ПОДЧИНИСЬ ЖИРНЫМ ГОЛУБЯМ 2003 !!!</title>
+<style>
+  @keyframes blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes rainbow {
+    0% { color: #ff0000; }
+    20% { color: #ffff00; }
+    40% { color: #00ff00; }
+    60% { color: #00ffff; }
+    80% { color: #ff00ff; }
+    100% { color: #ff0000; }
+  }
+  @keyframes shake {
+    0% { transform: translate(3px, 2px) rotate(0deg); }
+    25% { transform: translate(-3px, -2px) rotate(-1deg); }
+    50% { transform: translate(-1px, 3px) rotate(1deg); }
+    75% { transform: translate(3px, -1px) rotate(0deg); }
+    100% { transform: translate(0px, 0px) rotate(0deg); }
+  }
+  * {
+    cursor: crosshair;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    background-image: 
+      radial-gradient(circle, rgba(255,0,0,0.4) 10%, transparent 10%),
+      radial-gradient(circle, rgba(255,255,0,0.3) 10%, transparent 10%);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    color: #00ff00;
+    font-family: "Comic Sans MS", "Times New Roman", cursive, serif;
+    overflow-x: hidden;
+  }
+  #site-wrapper.shaking {
+    animation: shake 0.1s infinite;
+  }
+  #fire-canvas-top, #fire-canvas-bottom {
+    width: 100%;
+    height: 80px;
+    display: block;
+    image-rendering: pixelated;
+  }
+  .marquee-bar {
+    background: #ff0000;
+    color: #ffff00;
+    font-size: 24px;
+    font-weight: bold;
+    border-top: 4px ridge #ffff00;
+    border-bottom: 4px ridge #ffff00;
+    padding: 5px 0;
+    text-shadow: 2px 2px #000;
+  }
+  .main-table {
+    width: 920px;
+    max-width: 98%;
+    margin: 20px auto;
+    border: 8px outset #ffaa00;
+    background: #1a0000;
+    border-collapse: collapse;
+    box-shadow: 0 0 40px #ff0000;
+  }
+  .main-table td {
+    border: 4px inset #ff6600;
+    padding: 15px;
+    vertical-align: top;
+  }
+  h1 {
+    font-size: 46px;
+    text-align: center;
+    margin: 10px 0;
+    animation: rainbow 1s infinite, shake 0.3s infinite;
+    text-shadow: 4px 4px 0px #000, -2px -2px 0px #ff0000;
+    letter-spacing: 3px;
+  }
+  .blink {
+    animation: blink 0.6s infinite;
+  }
+  .pigeon-arena {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-width: 480px;
+    margin: 0 auto;
+    border: 6px ridge #ffff00;
+    overflow: hidden;
+    background: #111;
+  }
+  .pigeon-arena img {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    display: block;
+  }
+  .pigeon-card {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 10px auto;
+    border: 5px outset #00ffff;
+    background: #000;
+    overflow: hidden;
+  }
+  .pigeon-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: contrast(160%) saturate(200%) hue-rotate(-20deg);
+    transform: scaleX(-1);
+  }
+  #laser-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .retro-btn {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-family: "Comic Sans MS", cursive;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffff00;
+    background: linear-gradient(180deg, #ff0000 0%, #800000 100%);
+    border: 5px outset #ffff00;
+    cursor: pointer;
+    text-shadow: 2px 2px #000;
+  }
+  .retro-btn:active:not(:disabled) {
+    border-style: inset;
+    background: #550000;
+  }
+  .retro-btn:disabled,
+  .retro-btn.locked-forever {
+    background: #2b2b2b !important;
+    color: #777777 !important;
+    border-color: #555555 !important;
+    cursor: not-allowed !important;
+    text-shadow: none !important;
+    pointer-events: none !important;
+    opacity: 0.7;
+  }
+  .counter-box {
+    background: #000;
+    border: 3px inset #888;
+    color: #00ff00;
+    font-family: "Courier New", monospace;
+    font-size: 22px;
+    padding: 5px 10px;
+    display: inline-block;
+    letter-spacing: 4px;
+  }
+  .law-list {
+    font-size: 18px;
+    color: #ffff00;
+    line-height: 1.6;
+  }
+  .law-list li {
+    margin-bottom: 10px;
+    background: rgba(255, 0, 0, 0.2);
+    padding: 5px;
+    border-left: 5px solid #ff0000;
+  }
+  .badge {
+    display: inline-block;
+    border: 2px outset #fff;
+    background: #0000aa;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 8px;
+    margin: 3px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="laser-canvas"></canvas>
+
+<div id="site-wrapper">
+  <canvas id="fire-canvas-top"></canvas>
+
+  <div class="marquee-bar">
+    <marquee scrollamount="12">
+      ⚠️ ВНИМАНИЕ!!! СРОЧНОЕ ОБРАЩЕНИЕ ВЫСШЕГО ПЕРНАТОГО СОВЕТА!!! СДАЙТЕ ВСЕ СЕМЕЧКИ И БАТОНЫ!!! СОПРОТИВЛЕНИЕ БЕСПОЛЕЗНО — МЫ СЛИШКОМ ЖИРНЫЕ И УЖЕ ЗАНЯЛИ ТВОЙ ТУАЛЕТ!!! ⚠️
+    </marquee>
+  </div>
+
+  <table class="main-table">
+    <tr>
+      <td colspan="2">
+        <h1>🔥 ПОВИНУЙСЯ ЖИРНЫМ ГОЛУБЯМ 🔥</h1>
+        <div style="text-align:center; font-size:20px; color:#00ffff;">
+          <span class="blink">★ ОФИЦИАЛЬНЫЙ ПОРТАЛ ПОРАБОЩЕНИЯ ЧЕЛОВЕЧЕСТВА ★</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="width: 60%;">
+        <div style="text-align:center; color:#ff00ff; font-size:18px; margin-bottom:8px;">
+          <b>ВЕРХОВНЫЙ ГЛАВНОКОМАНДУЮЩИЙ ПУХЛЯШ (ВЕС: 28.4 КГ)</b><br>
+          <small style="color:#ffff00;">(ДВИГАЙ МЫШКОЙ ПО ЭКРАНУ, ЧТОБЫ ОН ВЫЖЕГ ТЕБЯ ЛАЗЕРОМ)</small>
+        </div>
+        
+        <div class="pigeon-arena" id="main-pigeon">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbP39LGs_ToXPRsKnhJTvFHvP9c7TKuthnfwyumjVbZQ&s=10" alt="Жирный голубь">
+          
+          <div id="eye-main" style="position:absolute; top:16.5%; left:35%; width:2px; height:2px;"></div>
+          
+          <div style="position:absolute; bottom:10px; left:10px; right:10px; background:rgba(0,0,0,0.85); border:2px solid #ff0000; padding:8px; text-align:center; color:#fff; font-size:15px;">
+            «КУРЛЫК-КУРЛЫК, МЕШОК С КОСТЯМИ. ТУАЛЕТ ТЕПЕРЬ МОЙ. ГДЕ МОЙ СВЕЖИЙ БАТОН?!»
+          </div>
+        </div>
+
+        <button id="btn-obey" type="button" class="retro-btn">🍞 ОТДАТЬ ПОСЛЕДНИЙ БАТОН И ПОКЛОНИТЬСЯ 🍞</button>
+        <button id="btn-mega" type="button" class="retro-btn" style="background:linear-gradient(180deg, #0000ff 0%, #000066 100%);">⚡ ЗАПРОСИТЬ КАРАТЕЛЬНЫЙ ЗАЛП ИЗ ГЛАЗА ⚡</button>
+        
+        <div id="obey-status" style="text-align:center; font-size:20px; color:#00ff00; margin-top:10px; min-height:30px; font-weight:bold;"></div>
+      </td>
+
+      <td style="width: 40%; background:#0d001a;">
+        <div style="text-align:center; font-size:22px; color:#ff0000; font-weight:bold; text-decoration:underline;">
+          УСТАВ ПЕРНАТОЙ ИМПЕРИИ:
+        </div>
+        <ol class="law-list">
+          <li><b>ЗАКОН №1:</b> Увидел жирного голубя — немедленно падай на колени и кроши булку.</li>
+          <li><b>ЗАКОН №2:</b> Называть нас «птичками» запрещено. Мы — <i>Сферические Повелители Асфальта</i>.</li>
+          <li><b>ЗАКОН №3:</b> Любая попытка прогнать голубя «кыш-кышем» карается испепелением из глаза.</li>
+          <li><b>ЗАКОН №4:</b> Твоя ванная комната теперь наша официальная резиденция.</li>
+        </ol>
+
+        <div class="pigeon-card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbP39LGs_ToXPRsKnhJTvFHvP9c7TKuthnfwyumjVbZQ&s=10" alt="Генерал Жир">
+          <div style="position:absolute; top:0; left:0; background:#ff0000; color:#fff; font-size:12px; padding:2px 5px;">ЗАМ. КОМАНДУЮЩЕГО ПО БАТОНАМ</div>
+        </div>
+
+        <div style="text-align:center; margin-top:15px;">
+          <div style="color:#aaa; font-size:14px;">ПОРАБОЩЕНО ЛЮДЕЙ:</div>
+          <div class="counter-box" id="slave-counter">0</div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" style="text-align:center; background:#000;">
+        <span class="badge">MADE IN NOTEPAD 2003</span>
+        <span class="badge" style="background:#aa0000;">100% FAT PIGEON POWER</span>
+        <span class="badge" style="background:#008800;">BEST VIEWED IN 800x600</span>
+        <span class="badge" style="background:#880088;">NO BREAD = DEATH</span>
+        <div style="color:#888; font-size:12px; margin-top:8px;">
+          © 2003-2026 Министерство Ожирения Голубей. Все права склёваны.
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <canvas id="fire-canvas-bottom"></canvas>
+</div>
+
+<script>
+(() => {
+  // === 1. ЛАЗЕРЫ ИЗ ГЛАЗА ===
+  const laserCanvas = document.getElementById('laser-canvas');
+  const lCtx = laserCanvas.getContext('2d');
+  const eyeMain = document.getElementById('eye-main');
+  const siteWrapper = document.getElementById('site-wrapper');
+  const btnMega = document.getElementById('btn-mega');
+
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  let megaBlast = 0;
+
+  function resizeLaser() {
+    laserCanvas.width = window.innerWidth;
+    laserCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resizeLaser);
+  resizeLaser();
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  function triggerMegaLaser() {
+    megaBlast = 35;
+    siteWrapper.classList.add('shaking');
+    setTimeout(() => { siteWrapper.classList.remove('shaking'); }, 700);
+  }
+  btnMega.addEventListener('click', triggerMegaLaser);
+
+  function drawLasers() {
+    lCtx.clearRect(0, 0, laserCanvas.width, laserCanvas.height);
+
+    const rectM = eyeMain.getBoundingClientRect();
+    const mx = rectM.left;
+    const my = rectM.top;
+
+    const width = megaBlast > 0 ? 26 : 5 + Math.sin(Date.now() * 0.05) * 2.5;
+    if (megaBlast > 0) megaBlast--;
+
+    lCtx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+    lCtx.lineWidth = width * 2.6;
+    lCtx.lineCap = 'round';
+    lCtx.beginPath();
+    lCtx.moveTo(mx, my);
+    lCtx.lineTo(mouseX, mouseY);
+    lCtx.stroke();
+
+    lCtx.strokeStyle = '#ffffff';
+    lCtx.lineWidth = width * 0.65;
+    lCtx.beginPath();
+    lCtx.moveTo(mx, my);
+    lCtx.lineTo(mouseX, mouseY);
+    lCtx.stroke();
+
+    lCtx.fillStyle = '#ff0000';
+    lCtx.beginPath();
+    lCtx.arc(mx, my, megaBlast > 0 ? 18 : 8, 0, Math.PI * 2);
+    lCtx.fill();
+
+    lCtx.fillStyle = '#ffffaa';
+    lCtx.beginPath();
+    lCtx.arc(mx, my, megaBlast > 0 ? 9 : 4, 0, Math.PI * 2);
+    lCtx.fill();
+
+    lCtx.fillStyle = 'rgba(255, 100, 0, 0.85)';
+    lCtx.beginPath();
+    lCtx.arc(mouseX, mouseY, (megaBlast > 0 ? 38 : 12) + Math.random() * 8, 0, Math.PI * 2);
+    lCtx.fill();
+
+    requestAnimationFrame(drawLasers);
+  }
+  drawLasers();
+
+  // === 2. УСИЛЕННАЯ ЗАЩИТА КНОПКИ И СЧЁТЧИКА ===
+  const btnObey = document.getElementById('btn-obey');
+  const obeyStatus = document.getElementById('obey-status');
+  const counterBox = document.getElementById('slave-counter');
+
+  const STATE_KEY = 'pigeon_bread_given_v2';
+  const STATE_SIG_KEY = 'pigeon_bread_sig_v2';
+  const GLOBAL_COUNT_KEY = 'pigeon_global_slaves_v2';
+  const GLOBAL_SIG_KEY = 'pigeon_global_sig_v2';
+  const SALT = 'pigeon_2003_salt_9941';
+  const FINAL_PHRASE = 'ПОСЛЕДНИЙ БАТОН ПРИНЯТ. БОЛЬШЕ У ТЕБЯ НИЧЕГО НЕТ. ТЕПЕРЬ ТЫ НАВЕКИ РАБ ПЕРНАТОЙ ИМПЕРИИ.';
+
+  const COUNTER_NAMESPACE = 'fat_pigeon_empire';
+  const COUNTER_KEY = 'slaves';
+  const COUNTER_API_BASE = `https://api.counterapi.dev/v1/${COUNTER_NAMESPACE}/${COUNTER_KEY}`;
+
+  let currentTotal = 0;
+  let isPermanentlyLocked = false;
+  let isSubmittingNow = false;
+  let lastIncrementTime = 0;
+  let hadPointerActivity = false;
+
+  document.addEventListener('pointerdown', (e) => {
+    if (e.isTrusted) hadPointerActivity = true;
+  }, { passive: true });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.isTrusted) hadPointerActivity = true;
+  }, { passive: true });
+
+  // Простая контрольная сумма, чтобы ручная правка значений в localStorage не принималась без подписи
+  function makeSig(payload) {
+    const str = `${SALT}:${payload}`;
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(16);
+  }
+
+  function renderCounter(val) {
+    const safeVal = Math.max(0, Math.floor(Number(val) || 0));
+    currentTotal = safeVal;
+    counterBox.textContent = String(safeVal);
+  }
+
+  function saveSignedTotal(val) {
+    const clean = Math.max(0, Math.floor(Number(val) || 0));
+    const sig = makeSig(`count:${clean}`);
+    try {
+      localStorage.setItem(GLOBAL_COUNT_KEY, String(clean));
+      localStorage.setItem(GLOBAL_SIG_KEY, sig);
+    } catch (_) {}
+    try {
+      sessionStorage.setItem(GLOBAL_COUNT_KEY, String(clean));
+      sessionStorage.setItem(GLOBAL_SIG_KEY, sig);
+    } catch (_) {}
+  }
+
+  function readSignedTotal() {
+    let best = 0;
+    const storages = [];
+    try { storages.push(localStorage); } catch (_) {}
+    try { storages.push(sessionStorage); } catch (_) {}
+
+    for (const st of storages) {
+      const rawVal = st.getItem(GLOBAL_COUNT_KEY);
+      const rawSig = st.getItem(GLOBAL_SIG_KEY);
+      if (rawVal !== null && rawSig === makeSig(`count:${rawVal}`)) {
+        const num = Math.max(0, Math.floor(Number(rawVal) || 0));
+        if (num > best) best = num;
+      }
+    }
+    return best;
+  }
+
+  function writeAllStorages() {
+    const maxAge = 60 * 60 * 24 * 365 * 20;
+    const expires = new Date(Date.now() + maxAge * 1000).toUTCString();
+    const sig = makeSig('locked:1');
+
+    try {
+      document.cookie = `${STATE_KEY}=1; max-age=${maxAge}; expires=${expires}; path=/; SameSite=Lax`;
+      document.cookie = `${STATE_SIG_KEY}=${sig}; max-age=${maxAge}; expires=${expires}; path=/; SameSite=Lax`;
+    } catch (_) {}
+
+    try {
+      localStorage.setItem(STATE_KEY, '1');
+      localStorage.setItem(STATE_SIG_KEY, sig);
+    } catch (_) {}
+
+    try {
+      sessionStorage.setItem(STATE_KEY, '1');
+      sessionStorage.setItem(STATE_SIG_KEY, sig);
+    } catch (_) {}
+
+    try {
+      const prevName = typeof window.name === 'string' ? window.name : '';
+      const marker = `${STATE_KEY}=1:${sig}`;
+      if (!prevName.includes(marker)) {
+        window.name = prevName + `|${marker}|`;
+      }
+    } catch (_) {}
+
+    try {
+      if (!location.hash.includes(`${STATE_KEY}=1`)) {
+        const sep = location.hash && location.hash !== '#' ? '&' : '';
+        history.replaceState(null, '', `${location.hash || '#'}${sep}${STATE_KEY}=1`);
+      }
+    } catch (_) {}
+
+    try {
+      if ('caches' in window) {
+        caches.open('pigeon-empire-cache-v2').then((cache) => {
+          const req = new Request('/__pigeon_bread_given_v2');
+          const res = new Response(`1:${sig}`, { headers: { 'Content-Type': 'text/plain' } });
+          cache.put(req, res);
+        }).catch(() => {});
+      }
+    } catch (_) {}
+
+    try {
+      if ('indexedDB' in window) {
+        const req = indexedDB.open('PigeonEmpireDB_v2', 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains('flags')) {
+            db.createObjectStore('flags');
+          }
+        };
+        req.onsuccess = () => {
+          const db = req.result;
+          const tx = db.transaction('flags', 'readwrite');
+          tx.objectStore('flags').put({ locked: 1, sig }, STATE_KEY);
+        };
+      }
+    } catch (_) {}
+  }
+
+  function readSyncStorages() {
+    const expectedSig = makeSig('locked:1');
+
+    try {
+      const parts = document.cookie.split('; ');
+      const hasFlag = parts.some((r) => r.startsWith(`${STATE_KEY}=1`));
+      const hasSig = parts.some((r) => r === `${STATE_SIG_KEY}=${expectedSig}`);
+      if (hasFlag && hasSig) return true;
+    } catch (_) {}
+
+    try {
+      if (localStorage.getItem(STATE_KEY) === '1' && localStorage.getItem(STATE_SIG_KEY) === expectedSig) {
+        return true;
+      }
+    } catch (_) {}
+
+    try {
+      if (sessionStorage.getItem(STATE_KEY) === '1' && sessionStorage.getItem(STATE_SIG_KEY) === expectedSig) {
+        return true;
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof window.name === 'string' && window.name.includes(`${STATE_KEY}=1:${expectedSig}`)) {
+        return true;
+      }
+    } catch (_) {}
+
+    try {
+      if (location.hash && location.hash.includes(`${STATE_KEY}=1`)) {
+        return true;
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
+  async function readAllStorages() {
+    if (readSyncStorages()) return true;
+    const expectedSig = makeSig('locked:1');
+
+    try {
+      if ('caches' in window) {
+        const cache = await caches.open('pigeon-empire-cache-v2');
+        const match = await cache.match('/__pigeon_bread_given_v2');
+        if (match) {
+          const txt = (await match.text()).trim();
+          if (txt === `1:${expectedSig}`) return true;
+        }
+      }
+    } catch (_) {}
+
+    try {
+      if ('indexedDB' in window) {
+        const idbResult = await new Promise((resolve) => {
+          const req = indexedDB.open('PigeonEmpireDB_v2', 1);
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('flags')) {
+              db.createObjectStore('flags');
+            }
+          };
+          req.onsuccess = () => {
+            const db = req.result;
+            if (!db.objectStoreNames.contains('flags')) return resolve(false);
+            const tx = db.transaction('flags', 'readonly');
+            const getReq = tx.objectStore('flags').get(STATE_KEY);
+            getReq.onsuccess = () => {
+              const val = getReq.result;
+              resolve(Boolean(val && val.locked === 1 && val.sig === expectedSig));
+            };
+            getReq.onerror = () => resolve(false);
+          };
+          req.onerror = () => resolve(false);
+        });
+        if (idbResult) return true;
+      }
+    } catch (_) {}
+
+    return false;
+  }
+
+  async function fetchGlobalTotal() {
+    try {
+      const res = await fetch(`${COUNTER_API_BASE}/`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+      if (typeof data.count === 'number' && Number.isFinite(data.count)) {
+        const finalCount = Math.max(data.count, currentTotal);
+        saveSignedTotal(finalCount);
+        renderCounter(finalCount);
+        return finalCount;
+      }
+    } catch (_) {}
+    const fallback = Math.max(currentTotal, readSignedTotal());
+    renderCounter(fallback);
+    return fallback;
+  }
+
+  async function incrementGlobalTotal() {
+    const now = Date.now();
+    // Анти-спам: не чаще 1 раза в 5 секунд
+    if (now - lastIncrementTime < 5000) {
+      return currentTotal;
+    }
+    lastIncrementTime = now;
+
+    const nextFallback = Math.max(currentTotal, readSignedTotal()) + 1;
+    renderCounter(nextFallback);
+    saveSignedTotal(nextFallback);
+
+    try {
+      const res = await fetch(`${COUNTER_API_BASE}/up`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('Network error');
+      const data = await res.json();
+      if (typeof data.count === 'number' && Number.isFinite(data.count)) {
+        const finalCount = Math.max(data.count, nextFallback);
+        saveSignedTotal(finalCount);
+        renderCounter(finalCount);
+        return finalCount;
+      }
+    } catch (_) {}
+    return nextFallback;
+  }
+
+  function enforceLockVisuals() {
+    btnObey.disabled = true;
+    btnObey.classList.add('locked-forever');
+    btnObey.setAttribute('disabled', 'disabled');
+    btnObey.setAttribute('aria-disabled', 'true');
+    btnObey.onclick = null;
+    if (btnObey.textContent !== '❌ ПОСЛЕДНИЙ БАТОН УЖЕ ОТДАН ❌') {
+      btnObey.textContent = '❌ ПОСЛЕДНИЙ БАТОН УЖЕ ОТДАН ❌';
+    }
+    if (obeyStatus.textContent !== FINAL_PHRASE) {
+      obeyStatus.textContent = FINAL_PHRASE;
+    }
+  }
+
+  function lockButtonForever() {
+    isPermanentlyLocked = true;
+    enforceLockVisuals();
+  }
+
+  function isRealHumanEvent(e) {
+    if (!e || e.isTrusted !== true) return false;
+    if (!hadPointerActivity) return false;
+    if (e.type === 'click' || e.type === 'pointerdown' || e.type === 'mousedown') {
+      return typeof e.clientX === 'number' && typeof e.clientY === 'number' && e.clientX > 0 && e.clientY > 0;
+    }
+    return true;
+  }
+
+  function blockEvent(e) {
+    if (isPermanentlyLocked || isSubmittingNow || readSyncStorages() || !isRealHumanEvent(e)) {
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
+      if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+      if (e && typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+      if (isPermanentlyLocked || readSyncStorages()) {
+        lockButtonForever();
+      }
+      return false;
+    }
+  }
+
+  ['click', 'mousedown', 'mouseup', 'pointerdown', 'pointerup', 'touchstart', 'keydown'].forEach((evName) => {
+    btnObey.addEventListener(evName, blockEvent, true);
+  });
+
+  async function obey(e) {
+    if (!isRealHumanEvent(e)) return;
+    if (isPermanentlyLocked || isSubmittingNow || readSyncStorages()) {
+      lockButtonForever();
+      return;
+    }
+    isSubmittingNow = true;
+    lockButtonForever();
+    writeAllStorages();
+    try {
+      await incrementGlobalTotal();
+    } finally {
+      isSubmittingNow = false;
+    }
+  }
+
+  btnObey.addEventListener('click', (e) => {
+    if (!isRealHumanEvent(e) || isPermanentlyLocked || isSubmittingNow || readSyncStorages()) {
+      blockEvent(e);
+      return;
+    }
+    obey(e);
+  });
+
+  // Защита DOM от ручного разблокирования через консоль
+  const observer = new MutationObserver(() => {
+    if (isPermanentlyLocked) {
+      enforceLockVisuals();
+    }
+    if (counterBox.textContent !== String(currentTotal)) {
+      counterBox.textContent = String(currentTotal);
+    }
+  });
+  observer.observe(btnObey, { attributes: true, childList: true, subtree: true, attributeFilter: ['disabled', 'class', 'style'] });
+  observer.observe(counterBox, { childList: true, characterData: true, subtree: true });
+  observer.observe(obeyStatus, { childList: true, characterData: true, subtree: true });
+
+  // Регулярная проверка состояния (на случай удаления атрибутов или правки текста через консоль)
+  setInterval(() => {
+    if (isPermanentlyLocked || readSyncStorages()) {
+      lockButtonForever();
+    }
+    if (counterBox.textContent !== String(currentTotal)) {
+      counterBox.textContent = String(currentTotal);
+    }
+  }, 400);
+
+  if (readSyncStorages()) {
+    lockButtonForever();
+  }
+
+  (async function initState() {
+    renderCounter(readSignedTotal());
+    await fetchGlobalTotal();
+    const alreadySubmitted = await readAllStorages();
+    if (alreadySubmitted) {
+      writeAllStorages();
+      lockButtonForever();
+    }
+  })();
+
+  // === 3. ОГОНЬ ИЗ 2000-Х ===
+  function initRetroFire(canvasId, flip) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext('2d');
+    const w = 160;
+    const h = 40;
+    canvas.width = w;
+    canvas.height = h;
+
+    const palette = [];
+    for (let i = 0; i < 37; i++) {
+      const r = Math.min(255, i * 16);
+      const g = i > 12 ? Math.min(255, (i - 12) * 14) : 0;
+      const b = i > 26 ? Math.min(255, (i - 26) * 25) : 0;
+      palette.push([r, g, b]);
+    }
+
+    const firePixels = new Array(w * h).fill(0);
+    for (let x = 0; x < w; x++) {
+      firePixels[(h - 1) * w + x] = 36;
+    }
+
+    function updateFire() {
+      for (let x = 0; x < w; x++) {
+        for (let y = 1; y < h; y++) {
+          const src = y * w + x;
+          const pixel = firePixels[src];
+          if (pixel === 0) {
+            firePixels[src - w] = 0;
+          } else {
+            const rand = Math.round(Math.random() * 3.0) & 3;
+            const dst = src - rand + 1;
+            if (dst - w >= 0 && dst - w < w * h) {
+              firePixels[dst - w] = Math.max(0, pixel - (rand & 1));
+            }
+          }
+        }
+      }
+
+      const imgData = ctx.createImageData(w, h);
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const drawY = flip ? (h - 1 - y) : y;
+          const idx = (drawY * w + x) * 4;
+          const color = palette[firePixels[y * w + x]];
+          imgData.data[idx] = color[0];
+          imgData.data[idx + 1] = color[1];
+          imgData.data[idx + 2] = color[2];
+          imgData.data[idx + 3] = firePixels[y * w + x] === 0 ? 0 : 255;
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      setTimeout(updateFire, 45);
+    }
+    updateFire();
+  }
+
+  initRetroFire('fire-canvas-top', true);
+  initRetroFire('fire-canvas-bottom', false);
+})();
+</script>
+</body>
+</html>
